@@ -1,0 +1,293 @@
+import CarouselPatternBg from './CarouselPatternBg';
+import vitrineImg from '../assets/vitrinePresentation.png';
+import entrepriseImg from '../assets/entreprisePresentation.png';
+import venteImg from '../assets/ventePresentation.png';
+
+import React, { useState, useRef, useEffect } from 'react';
+import Hammer from 'hammerjs';
+
+const cards = [
+  {
+    src: vitrineImg,
+    alt: 'Site Vitrine',
+    title: 'Vitrine',
+    description: "Un site vitrine pour présenter votre activité, votre marque ou votre portfolio.",
+  },
+  {
+    src: entrepriseImg,
+    alt: 'App intra entreprise',
+    title: 'Entreprise',
+    description: "Une application web interactive et sur-mesure pour vos besoins spécifiques.",
+  },
+  {
+    src: venteImg,
+    alt: 'Site E-commerce',
+    title: 'E-commerce',
+    description: "Une boutique e-commerce moderne, rapide et sécurisée pour vendre vos produits.",
+  },
+];
+
+const TypeCarousel = () => {
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [order, setOrder] = useState([0, 1, 2]); // [dessous, milieu, dessus]
+  const [dragging, setDragging] = useState(null); // index de la card en cours de drag
+  const [showDescription, setShowDescription] = useState(null); // index de la card avec description visible
+  const cardRefs = useRef([]);
+
+  useEffect(() => {
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 768);
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
+
+  // Fonction pour réinitialiser les positions des cards
+  const initCards = () => {
+    const allCards = document.querySelectorAll('.carousel-card:not(.removed)');
+    allCards.forEach((card, index) => {
+      const scale = (20 - index * 2) / 20; // scale: 1, 0.9, 0.8
+      const translateY = -40 * index; // offset vertical: 0, -40px, -80px
+      const opacity = (10 - index * 2) / 10; // opacity: 1, 0.8, 0.6
+      
+      card.style.zIndex = allCards.length - index;
+      card.style.transform = `scale(${scale}) translateY(${translateY}px)`;
+      card.style.opacity = opacity;
+    });
+  };
+
+  // === DESKTOP : Swap animation ===
+  const handleDesktopClick = (cardIndex) => {
+    const position = order.indexOf(cardIndex);
+    
+    // Si c'est la carte du milieu, scroll vers la section
+    if (position === 1) {
+      // TODO: Implémenter le scroll vers la section détaillée
+      console.log('Scroll vers section:', cards[cardIndex].title);
+      return;
+    }
+
+    // Swap gauche ↔ milieu
+    if (position === 0) {
+      setSwapping('left');
+      setTimeout(() => {
+        setOrder([order[1], order[0], order[2]]);
+        setSwapping(null);
+      }, 500);
+    }
+    
+    // Swap droite ↔ milieu
+    if (position === 2) {
+      setSwapping('right');
+      setTimeout(() => {
+        setOrder([order[0], order[2], order[1]]);
+        setSwapping(null);
+      }, 500);
+    }
+  };
+
+  // === MOBILE : Card stack system avec swipe horizontal ===
+  const touchStartX = useRef(null);
+
+  const handleMobileTouch = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleMobileTouchEnd = (e) => {
+    if (!touchStartX.current) return;
+    
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    
+    // Swipe horizontal (gauche ou droite) = retire la carte du dessus
+    if (Math.abs(deltaX) > 50) {
+      setRemovingCard(true);
+      setTimeout(() => {
+        setOrder(prev => [...prev.slice(1), prev[0]]);
+        setRemovingCard(false);
+      }, 400);
+    }
+    
+    touchStartX.current = null;
+  };
+
+  
+  // === DESKTOP STYLES : Parallax effect avec perspective 3D ===
+  const getDesktopCardStyle = (position) => {
+    const baseStyle = {
+      position: 'absolute',
+      top: '50%',
+      width: '280px',
+      height: 'auto',
+      borderRadius: '0.75rem',
+      cursor: 'pointer',
+      transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+      transformStyle: 'preserve-3d',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
+    };
+
+    // Position 0 = Gauche (tourne vers le centre avec perspective)
+    if (position === 0) {
+      return {
+        ...baseStyle,
+        left: '15%',
+        transform: swapping === 'left' 
+          ? 'translateY(-50%) translateX(135%) rotateY(0deg) translateZ(100px) scale(1.07)' 
+          : 'translateY(-50%) rotateY(20deg) translateX(0) translateZ(-50px) scale(0.95)',
+        zIndex: swapping === 'left' ? 30 : 10,
+      };
+    }
+
+    // Position 1 = Milieu (pas de rotation, devant, plus grand)
+    if (position === 1) {
+      return {
+        ...baseStyle,
+        left: '50%',
+        transform: swapping 
+          ? `translateX(-50%) translateY(-50%) translateX(${swapping === 'left' ? '-135%' : '135%'}) rotateY(${swapping === 'left' ? '-20deg' : '20deg'}) translateZ(-50px) scale(0.95)`
+          : 'translateX(-50%) translateY(-50%) rotateY(0deg) translateZ(100px) scale(1)',
+        zIndex: swapping ? 5 : 20,
+        width: '315px',
+      };
+    }
+
+    // Position 2 = Droite (tourne vers le centre avec perspective)
+    if (position === 2) {
+      return {
+        ...baseStyle,
+        right: '15%',
+        transform: swapping === 'right'
+          ? 'translateY(-50%) translateX(-135%) rotateY(0deg) translateZ(100px) scale(1.07)'
+          : 'translateY(-50%) rotateY(-20deg) translateX(0) translateZ(-50px) scale(0.95)',
+        zIndex: swapping === 'right' ? 30 : 10,
+      };
+    }
+
+    return baseStyle;
+  };
+
+  // === MOBILE STYLES : Card stack en cascade (haut-droite) ===
+  const getMobileCardStyle = (position) => {
+    const baseStyle = {
+      position: 'absolute',
+      width: '200px',
+      height: 'auto',
+      borderRadius: '0.75rem',
+      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
+    };
+
+    // Position 0 = En dessous (la plus basse, en bas-gauche)
+    if (position === 0) {
+      return {
+        ...baseStyle,
+        left: '50%',
+        top: '50%',
+        transform: removingCard 
+          ? 'translate(-50%, -50%) translateX(-100vw) rotate(-15deg) scale(0.8)'
+          : 'translate(-50%, -50%) translateX(-40px) translateY(40px) rotate(5deg) scale(0.85)',
+        zIndex: 1,
+        opacity: 0.6,
+      };
+    }
+
+    // Position 1 = Au milieu (décalée en haut-droite)
+    if (position === 1) {
+      return {
+        ...baseStyle,
+        left: '50%',
+        top: '50%',
+        transform: removingCard
+          ? 'translate(-50%, -50%) translateX(-20px) translateY(20px) rotate(2deg) scale(0.9)'
+          : 'translate(-50%, -50%) translateX(-20px) translateY(20px) rotate(2deg) scale(0.9)',
+        zIndex: 2,
+        opacity: 0.8,
+      };
+    }
+
+    // Position 2 = Dessus (carte active, position centrale)
+    if (position === 2) {
+      return {
+        ...baseStyle,
+        left: '50%',
+        top: '50%',
+        transform: removingCard
+          ? 'translate(-50%, -50%) translateX(-100vw) rotate(-20deg) scale(0.7)'
+          : 'translate(-50%, -50%) rotate(0deg) scale(1)',
+        zIndex: 3,
+        opacity: 1,
+        cursor: 'grab',
+      };
+    }
+
+    return baseStyle;
+  };
+
+  return (
+    <section 
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
+      style={{ backgroundColor: '#F8F8FF' }}
+    >
+      <CarouselPatternBg />
+      
+      {/* Titre */}
+      <h2 className="text-3xl md:text-4xl font-semibold text-gray-800 mb-8 md:mb-16 relative z-10">
+        Produits proposés
+      </h2>
+
+      {/* Container des cards avec perspective 3D */}
+      <div
+        className="relative w-full mx-auto flex items-center justify-center z-10"
+        style={{ 
+          height: '500px',
+          maxWidth: isDesktop ? '1200px' : '100vw',
+          perspective: isDesktop ? '1500px' : 'none',
+          perspectiveOrigin: 'center center'
+        }}
+        onTouchStart={!isDesktop ? handleMobileTouch : undefined}
+        onTouchEnd={!isDesktop ? handleMobileTouchEnd : undefined}
+      >
+        {order.map((cardIndex, position) => {
+          const card = cards[cardIndex];
+          const style = isDesktop 
+            ? getDesktopCardStyle(position)
+            : getMobileCardStyle(position);
+
+          return (
+            <div
+              key={cardIndex}
+              style={style}
+              className="group relative"
+              onClick={() => isDesktop && handleDesktopClick(cardIndex)}
+              onMouseEnter={() => isDesktop && setHoveredCard(cardIndex)}
+              onMouseLeave={() => isDesktop && setHoveredCard(null)}
+            >
+              <img
+                src={card.src}
+                alt={card.alt}
+                className="w-full h-auto rounded-lg select-none"
+                draggable="false"
+              />
+              
+              {/* Overlay hover (desktop uniquement) */}
+              {isDesktop && hoveredCard === cardIndex && (
+                <div className="absolute inset-0 bg-gray-900/70 rounded-lg flex items-center justify-center transition-opacity duration-300">
+                  <h3 className="text-white text-xl md:text-2xl font-semibold px-4 text-center">
+                    {card.title}
+                  </h3>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Texte explicatif - hauteur fixe pour éviter les décalages */}
+      <div className="mt-8 md:mt-16 text-center relative z-10 max-w-2xl px-4" style={{ minHeight: '60px' }}>
+        <p className="text-base md:text-lg text-gray-700">
+          {cards[order[isDesktop ? 1 : 2]].description}
+        </p>
+      </div>
+    </section>
+  );
+};
+
+export default TypeCarousel;
