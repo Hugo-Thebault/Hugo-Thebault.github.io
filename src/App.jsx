@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HeroVideo from './components/HeroVideo';
 import AboutMe from './components/AboutMe';
@@ -11,14 +11,73 @@ import Thanks from './components/Thanks';
 import Logo from './components/Logo';
 import PaginationDots from './components/PaginationDots';
 import BackgroundPattern from './components/BackgroundPattern';
+import WelcomeOverlay from './components/WelcomeOverlay';
 
-// Pages projets (à créer plus tard)
-const SiteVitrine = () => <div className="min-h-screen flex items-center justify-center text-3xl">Page Site Vitrine (à détailler)</div>;
-const SiteEcommerce = () => <div className="min-h-screen flex items-center justify-center text-3xl">Page Site E-commerce (à détailler)</div>;
-const SiteApplication = () => <div className="min-h-screen flex items-center justify-center text-3xl">Page Site Application (à détailler)</div>;
+import vitrineImg from './assets/vitrinePresentation.png';
+import entrepriseImg from './assets/entreprisePresentation.png';
+import venteImg from './assets/ventePresentation.png';
+
+function ProjectPage({ title, description, imageSrc, imageAlt, imageSide = 'left' }) {
+  const isImageRight = imageSide === 'right';
+
+  return (
+    <div className="min-h-screen w-full flex items-center justify-center px-6 py-16" style={{ backgroundColor: '#F8F8FF' }}>
+      <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+        <div className={isImageRight ? 'md:order-2' : 'md:order-1'}>
+          <img
+            src={imageSrc}
+            alt={imageAlt}
+            className="w-full h-auto rounded-3xl shadow-2xl object-cover"
+            loading="lazy"
+            draggable={false}
+          />
+        </div>
+
+        <div className={isImageRight ? 'md:order-1' : 'md:order-2'}>
+          <h1 className="text-3xl md:text-5xl font-bold text-gray-900">
+            {title}
+          </h1>
+          <p className="mt-4 text-gray-700 text-base md:text-lg leading-relaxed">
+            {description}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const SiteVitrine = () => (
+  <ProjectPage
+    title="Site Vitrine"
+    description="Un site élégant pour présenter votre activité, votre marque ou votre portfolio personnel. Idéal pour informer, rassurer et convertir vos visiteurs."
+    imageSrc={vitrineImg}
+    imageAlt="Aperçu site vitrine"
+    imageSide="left"
+  />
+);
+
+const SiteApplication = () => (
+  <ProjectPage
+    title="Site Application"
+    description="Des applications web interactives et sur-mesure pour répondre à tous vos besoins : espaces clients, tableaux de bord, outils internes, automatisations…"
+    imageSrc={entrepriseImg}
+    imageAlt="Aperçu site application"
+    imageSide="left"
+  />
+);
+
+const SiteEcommerce = () => (
+  <ProjectPage
+    title="Site E-commerce"
+    description="Une boutique en ligne moderne, rapide et sécurisée pour vendre vos produits : catalogue, paiement, gestion des commandes et expérience utilisateur fluide."
+    imageSrc={venteImg}
+    imageAlt="Aperçu site e-commerce"
+    imageSide="right"
+  />
+);
 
 
-function Home() {
+function Home({ onTestWelcome }) {
   // Réfs pour chaque écran
   const section0 = useRef(null);
   const section1 = useRef(null);
@@ -95,18 +154,42 @@ function Home() {
       <div ref={section3} className="snap-start h-screen"><TypePresentation1 /></div>
       <div ref={section4} className="snap-start h-screen"><TypePresentation2 /></div>
       <div ref={section5} className="snap-start h-screen"><TypePresentation3 /></div>
-      <div ref={section6} className="snap-start h-screen"><Thanks /></div>
+      <div ref={section6} className="snap-start h-screen"><Thanks onTestWelcome={onTestWelcome} /></div>
     </div>
   );
 }
 
 function App() {
+  const WELCOME_DISMISSED_KEY = 'welcomeDismissed';
+
+  const [welcomeOpen, setWelcomeOpen] = useState(() => {
+    try {
+      return sessionStorage.getItem(WELCOME_DISMISSED_KEY) !== '1';
+    } catch {
+      return true;
+    }
+  });
+
+  const handleWelcomeClose = useCallback(() => {
+    try {
+      sessionStorage.setItem(WELCOME_DISMISSED_KEY, '1');
+    } catch {
+      // ignore
+    }
+    setWelcomeOpen(false);
+  }, []);
+
+  const handleTestWelcome = useCallback(() => {
+    setWelcomeOpen(true);
+  }, []);
+
   return (
     <Router>
+      <WelcomeOverlay open={welcomeOpen} onClose={handleWelcomeClose} />
       <BackgroundPattern />
       <Logo />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home onTestWelcome={handleTestWelcome} />} />
         <Route path="/site-vitrine" element={<SiteVitrine />} />
         <Route path="/site-ecommerce" element={<SiteEcommerce />} />
         <Route path="/site-application" element={<SiteApplication />} />
