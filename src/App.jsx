@@ -12,6 +12,8 @@ import Logo from './components/Logo';
 import PaginationDots from './components/PaginationDots';
 import BackgroundPattern from './components/BackgroundPattern';
 import WelcomeOverlay from './components/WelcomeOverlay';
+import SiteVitrinePage from './components/SiteVitrinePage';
+import SiteApplicationPage from './components/SiteApplicationPage';
 
 import vitrineImg from './assets/vitrinePresentation.png';
 import entrepriseImg from './assets/entreprisePresentation.png';
@@ -190,9 +192,9 @@ function App() {
       <Logo />
       <Routes>
         <Route path="/" element={<Home onTestWelcome={handleTestWelcome} />} />
-        <Route path="/site-vitrine" element={<SiteVitrine />} />
+        <Route path="/site-vitrine" element={<SiteVitrinePage />} />
         <Route path="/site-ecommerce" element={<SiteEcommerce />} />
-        <Route path="/site-application" element={<SiteApplication />} />
+        <Route path="/site-application" element={<SiteApplicationPage />} />
       </Routes>
     </Router>
   );
