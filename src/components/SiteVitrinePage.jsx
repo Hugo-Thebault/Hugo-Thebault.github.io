@@ -8,7 +8,6 @@ import phone1 from '../assets/Site chef phone 1.jpg';
 import phone2 from '../assets/Site chef phone 2.jpg';
 import phone3 from '../assets/Site chef phone 3.jpg';
 
-const desktopShots = [desk1, desk2, desk3];
 const phoneShots = [phone1, phone2, phone3];
 
 const SiteVitrinePage = () => {
@@ -145,7 +144,18 @@ const SiteVitrinePage = () => {
       </section>
 
       {/* ─── Retour ─── */}
-      <section className="w-full flex justify-center pb-20">
+      <section className="w-full flex justify-center gap-4 pb-20">
+        <a
+          href="https://www.moulin-marigotiere.fr/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 rounded-full bg-gray-900 border-2 border-gray-900 px-8 py-3 text-sm font-semibold text-white hover:bg-gray-800 hover:border-gray-800 transition"
+        >
+          Voir le site
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
         <Link
           to="/"
           className="inline-flex items-center gap-2 rounded-full border-2 border-gray-800/60 bg-transparent px-8 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-900/5 hover:border-gray-900/80 transition"

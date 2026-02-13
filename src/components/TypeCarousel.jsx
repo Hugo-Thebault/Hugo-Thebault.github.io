@@ -31,7 +31,7 @@ const cards = [
 ];
 
 const TypeCarousel = () => {
-  const [isDesktop, setIsDesktop] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
   const [order, setOrder] = useState([0, 1, 2]); // [dessous, milieu, dessus]
   const [desktopOrder, setDesktopOrder] = useState([0, 1, 2]); // [gauche, centre, droite]
   const [desktopAnimating, setDesktopAnimating] = useState(false);
@@ -42,6 +42,9 @@ const TypeCarousel = () => {
   const [descriptionOverlayOrigin, setDescriptionOverlayOrigin] = useState('bottom');
   const cardRefs = useRef({});
   const hammersRef = useRef({});
+  const initTimerRef = useRef(null);
+  const orderTimerRef = useRef(null);
+  const isDesktopRef = useRef(isDesktop);
 
   const DESCRIPTION_ANIM_MS = 220;
   const DESKTOP_FAN_ANIM_MS = 1000;
@@ -53,7 +56,11 @@ const TypeCarousel = () => {
   const CARD_WIDTH_DESKTOP = 'clamp(220px, 24vw, 340px)';
 
   useEffect(() => {
-    const checkDesktop = () => setIsDesktop(window.innerWidth >= 768);
+    const checkDesktop = () => {
+      const val = window.innerWidth >= 768;
+      setIsDesktop(val);
+      isDesktopRef.current = val;
+    };
     checkDesktop();
     window.addEventListener('resize', checkDesktop);
     return () => window.removeEventListener('resize', checkDesktop);
@@ -72,7 +79,7 @@ const TypeCarousel = () => {
 
   // Fonction pour réinitialiser les positions des cards
   const initCards = useCallback(() => {
-    if (isDesktop) return;
+    if (isDesktop || isDesktopRef.current) return;
     cards.forEach((_, cardIndex) => {
       const el = cardRefs.current[cardIndex];
       if (!el) return;
@@ -166,10 +173,11 @@ const TypeCarousel = () => {
     });
 
     // Initialiser les positions au montage
-    setTimeout(initCards, 100);
+    initTimerRef.current = setTimeout(initCards, 100);
 
     // Cleanup
     return () => {
+      if (initTimerRef.current) clearTimeout(initTimerRef.current);
       Object.values(hammersRef.current).forEach(h => h && h.destroy());
       hammersRef.current = {};
     };
@@ -179,9 +187,12 @@ const TypeCarousel = () => {
   useEffect(() => {
     if (isDesktop) return;
     // Attendre que la card removed soit sortie
-    setTimeout(() => {
+    orderTimerRef.current = setTimeout(() => {
       initCards();
     }, 50);
+    return () => {
+      if (orderTimerRef.current) clearTimeout(orderTimerRef.current);
+    };
   }, [order, initCards, isDesktop]);
 
   const scrollToProduct = (anchorId) => {
