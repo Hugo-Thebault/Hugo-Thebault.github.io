@@ -279,3 +279,66 @@ h1, h2, h3 {
         opacity: 0;
     }
 }
+
+/* Hero: leger mouvement autonome des 4 cartes etapes */
+.hero-step-card {
+    animation: heroStepFloatA 7.5s ease-in-out infinite;
+    will-change: transform;
+}
+
+.hero-step-card-1 {
+    animation-name: heroStepFloatA;
+    animation-duration: 7.2s;
+}
+
+.hero-step-card-2 {
+    animation-name: heroStepFloatB;
+    animation-duration: 8.1s;
+    animation-delay: 0.4s;
+}
+
+.hero-step-card-3 {
+    animation-name: heroStepFloatC;
+    animation-duration: 7.8s;
+    animation-delay: 0.8s;
+}
+
+.hero-step-card-4 {
+    animation-name: heroStepFloatD;
+    animation-duration: 8.4s;
+    animation-delay: 1.2s;
+}
+
+@keyframes heroStepFloatA {
+    0% { transform: translate(-12px, -8px) rotate(-2.4deg); }
+    50% { transform: translate(-10px, -12px) rotate(-1.8deg); }
+    100% { transform: translate(-12px, -8px) rotate(-2.4deg); }
+}
+
+@keyframes heroStepFloatB {
+    0% { transform: translate(14px, -2px) rotate(2.1deg); }
+    50% { transform: translate(18px, -6px) rotate(2.7deg); }
+    100% { transform: translate(14px, -2px) rotate(2.1deg); }
+}
+
+@keyframes heroStepFloatC {
+    0% { transform: translate(-10px, 10px) rotate(1.9deg); }
+    50% { transform: translate(-14px, 14px) rotate(1.3deg); }
+    100% { transform: translate(-10px, 10px) rotate(1.9deg); }
+}
+
+@keyframes heroStepFloatD {
+    0% { transform: translate(10px, 12px) rotate(-2.2deg); }
+    50% { transform: translate(14px, 8px) rotate(-2.8deg); }
+    100% { transform: translate(10px, 12px) rotate(-2.2deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-step-card,
+    .hero-step-card-1,
+    .hero-step-card-2,
+    .hero-step-card-3,
+    .hero-step-card-4 {
+        animation: none !important;
+    }
+}

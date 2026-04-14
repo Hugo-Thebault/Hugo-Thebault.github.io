@@ -34,11 +34,23 @@ const Thanks = ({ onTestWelcome }) => {
       <div className="absolute bottom-10 left-20 z-30 flex flex-col items-center">
         {/* Texte au hover */}
         <div
-          className={`absolute bottom-[60px] pointer-events-none transition-opacity duration-300 ${
+          className={`absolute bottom-[34px] pointer-events-none transition-opacity duration-300 ${
             hoveredGithub ? 'opacity-100' : 'opacity-0'
           }`}
+          style={{ width: '240px', height: '90px' }}
         >
-          <p className="text-sm font-semibold text-gray-700 whitespace-nowrap">pour les devs</p>
+          <svg
+            viewBox="0 0 240 90"
+            className="w-full h-full"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <path id="arc-github" d="M 30,70 A 110,110 0 0,1 210,70" fill="none" />
+            </defs>
+            <text fontSize="12" fontWeight="600" fill="#374151" textAnchor="middle" fontFamily="'Maven Pro', sans-serif">
+              <textPath href="#arc-github" startOffset="50%">pour les devs</textPath>
+            </text>
+          </svg>
         </div>
 
         {/* Bouton */}

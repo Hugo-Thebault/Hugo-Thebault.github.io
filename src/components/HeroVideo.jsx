@@ -1,13 +1,46 @@
 import React from 'react';
 
+import presentationHaut from '../assets/PresentationHaut.png';
+import vitrineImg from '../assets/vitrinePresentation.png';
+import entrepriseImg from '../assets/entreprisePresentation.png';
+import ecommerceImg from '../assets/ecommerce.jpg';
 
 
 import { useMemo, useRef, useEffect, useState } from 'react';
 
+const steps = [
+  {
+    number: '01',
+    title: 'Discussion client',
+    subtitle: 'Comprendre votre besoin, vos objectifs et votre cible.',
+    image: presentationHaut,
+    alt: 'Discussion avec le client',
+  },
+  {
+    number: '02',
+    title: 'Maquettage',
+    subtitle: 'Structurer l’interface et valider la direction visuelle.',
+    image: vitrineImg,
+    alt: 'Maquettage du site',
+  },
+  {
+    number: '03',
+    title: 'Realisation',
+    subtitle: 'Construire votre site sur mesure avec un code solide, fluide et evolutif.',
+    image: entrepriseImg,
+    alt: 'Phase de realisation du site',
+  },
+  {
+    number: '04',
+    title: 'Mise en ligne',
+    subtitle: 'Finaliser les tests, deployer en production et assurer une mise en ligne sans friction.',
+    image: ecommerceImg,
+    alt: 'Mise en ligne du site',
+  },
+];
+
 const HeroVideo = ({ isActive }) => {
   const heroRootRef = useRef(null);
-  const videoRefDesktop = useRef(null);
-  const videoRefMobile = useRef(null);
   const [typedCount, setTypedCount] = useState(0);
   const [introKey, setIntroKey] = useState(0);
   const [runIntro, setRunIntro] = useState(false);
@@ -81,22 +114,6 @@ const HeroVideo = ({ isActive }) => {
   }, [isActive, runIntro]);
 
   useEffect(() => {
-    const ref = window.innerWidth >= 768 ? videoRefDesktop : videoRefMobile;
-    if (!ref.current) return;
-
-    if (runIntro) {
-      try {
-        ref.current.currentTime = 0;
-        ref.current.play();
-      } catch {
-        // ignore autoplay/play errors
-      }
-    } else {
-      ref.current.pause();
-    }
-  }, [runIntro]);
-
-  useEffect(() => {
     const onWelcomeDismissed = () => {
       setTypedCount(0);
       setIntroKey((k) => k + 1);
@@ -164,24 +181,56 @@ const HeroVideo = ({ isActive }) => {
 
   return (
     <div ref={heroRootRef} className="w-full h-screen flex items-center justify-center bg-black relative overflow-hidden">
-      <video
-        ref={videoRefDesktop}
-        className="hidden md:block w-full h-full object-cover"
-        src="https://www.w3schools.com/html/mov_bbb.mp4"
-        loop
-        muted
-        playsInline
-      />
-      <video
-        ref={videoRefMobile}
-        className="block md:hidden w-full h-full object-cover"
-        src="https://www.w3schools.com/html/mov_bbb.mp4"
-        loop
-        muted
-        playsInline
-      />
-      <div className="absolute inset-0 flex items-center justify-center">
-        {/* Optionnel : logo ou texte par-dessus */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12),transparent_36%),radial-gradient(circle_at_80%_80%,rgba(255,255,255,0.10),transparent_34%),linear-gradient(135deg,#09090b,#18181b)]" />
+
+      <div className="relative z-10 w-full max-w-6xl px-6 md:px-10 py-10">
+        <div className="text-center mb-8 md:mb-12">
+          <p className="text-xs md:text-sm uppercase tracking-[0.28em] text-gray-300 mb-3">Methodologie</p>
+          <h1 className="text-3xl md:text-5xl font-bold text-white title-sc leading-tight">
+            <span className="title-display">4</span> etapes de creation d&apos;un site
+          </h1>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-10">
+          {steps.map((step, idx) => (
+            <article
+              key={step.number}
+              className={`relative rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm p-5 md:p-6 shadow-2xl hero-step-card hero-step-card-${idx + 1}`}
+              style={{
+                transform:
+                  idx === 0
+                    ? 'translate(-12px, -8px) rotate(-2.4deg)'
+                    : idx === 1
+                      ? 'translate(14px, -2px) rotate(2.1deg)'
+                      : idx === 2
+                        ? 'translate(-10px, 10px) rotate(1.9deg)'
+                        : 'translate(10px, 12px) rotate(-2.2deg)',
+              }}
+            >
+              <span className="absolute top-3 right-4 text-4xl md:text-5xl font-bold text-white/25">
+                {step.number}
+              </span>
+
+              <div className="flex items-center gap-4 pr-14">
+                <img
+                  src={step.image}
+                  alt={step.alt}
+                  className="w-24 h-24 md:w-28 md:h-28 rounded-xl object-cover border border-white/30"
+                  draggable={false}
+                />
+
+                <div className="text-left">
+                  <h2 className="text-lg md:text-2xl font-semibold text-white title-sc leading-tight">
+                    <span className="title-display">{step.title.charAt(0)}</span>{step.title.slice(1)}
+                  </h2>
+                  <p className="mt-1 text-sm md:text-base text-gray-200 leading-relaxed">
+                    {step.subtitle}
+                  </p>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
 
       {runIntro && (
