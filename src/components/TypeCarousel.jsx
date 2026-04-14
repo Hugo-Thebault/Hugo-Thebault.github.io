@@ -45,6 +45,7 @@ const TypeCarousel = () => {
   const initTimerRef = useRef(null);
   const orderTimerRef = useRef(null);
   const isDesktopRef = useRef(isDesktop);
+  const touchStartRef = useRef({ x: 0, y: 0 });
 
   const DESCRIPTION_ANIM_MS = 220;
   const DESKTOP_FAN_ANIM_MS = 1000;
@@ -104,6 +105,7 @@ const TypeCarousel = () => {
       if (!el || hammersRef.current[cardIndex]) return;
       
       const hammer = new Hammer(el);
+      hammer.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 8 });
       hammersRef.current[cardIndex] = hammer;
 
       // Événement pan (drag)
@@ -117,14 +119,12 @@ const TypeCarousel = () => {
 
         el.classList.add('moving');
 
-        const xMulti = event.deltaX * 0.02;
-        const yMulti = event.deltaY / 100;
-        const rotate = xMulti * yMulti;
+        const rotate = event.deltaX * 0.02;
 
         // Désactiver temporairement la transition pendant le drag
         el.style.transition = 'none';
         // Garder le centrage pendant le drag
-        el.style.transform = `translate(-50%, -50%) translate(${event.deltaX}px, ${event.deltaY}px) rotate(${rotate}deg)`;
+        el.style.transform = `translate(-50%, -50%) translateX(${event.deltaX}px) rotate(${rotate}deg)`;
       });
 
       // Événement panend (fin du drag)
@@ -148,12 +148,10 @@ const TypeCarousel = () => {
           
           const endX = Math.max(Math.abs(event.velocityX) * moveOutWidth, moveOutWidth * 0.8);
           const toX = event.deltaX > 0 ? endX : -endX;
-          const xMulti = event.deltaX * 0.02;
-          const yMulti = event.deltaY / 100;
-          const rotate = xMulti * yMulti * 10; // Rotation sobre (max ~10-15deg)
+          const rotate = event.deltaX > 0 ? 12 : -12;
 
           el.style.transition = 'all 0.4s ease-out';
-          el.style.transform = `translate(-50%, -50%) translate(${toX}px, ${event.deltaY}px) rotate(${rotate}deg)`;
+          el.style.transform = `translate(-50%, -50%) translateX(${toX}px) rotate(${rotate}deg)`;
           el.style.opacity = '0';
 
           // Après l'animation, mettre la card derrière
@@ -322,6 +320,37 @@ const TypeCarousel = () => {
     }, 400);
   };
 
+  const handleMobileTouchStart = (e) => {
+    const t = e.touches?.[0];
+    if (!t) return;
+    touchStartRef.current = { x: t.clientX, y: t.clientY };
+  };
+
+  const handleMobileTouchMove = (e) => {
+    const t = e.touches?.[0];
+    if (!t) return;
+    const dx = t.clientX - touchStartRef.current.x;
+    const dy = t.clientY - touchStartRef.current.y;
+
+    // Si le geste est horizontal, on bloque le scroll vertical snap parent.
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
+  const handleMobileTouchEnd = (e) => {
+    const t = e.changedTouches?.[0];
+    if (!t) return;
+    const dx = t.clientX - touchStartRef.current.x;
+    const dy = t.clientY - touchStartRef.current.y;
+
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) swipeLeft();
+      else swipeRight();
+    }
+  };
+
   return (
     <section 
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
@@ -341,7 +370,11 @@ const TypeCarousel = () => {
           style={{
             height: 'min(54vh, 400px)',
             maxWidth: '100vw',
+            touchAction: 'pan-x',
           }}
+          onTouchStartCapture={handleMobileTouchStart}
+          onTouchMoveCapture={handleMobileTouchMove}
+          onTouchEndCapture={handleMobileTouchEnd}
         >
           {order.map((cardIndex) => {
             const card = cards[cardIndex];
