@@ -20,7 +20,7 @@ const Logo = () => {
   };
 
   useLayoutEffect(() => {
-    updateDotVars();
+    updateDotVars(); 
   }, []);
 
   useEffect(() => {
