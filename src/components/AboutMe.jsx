@@ -122,7 +122,7 @@ const AboutMe = () => {
       <div className="w-full h-full flex flex-col justify-start text-justify gap-12">
           <h2 className="text-4xl md:text-5xl font-semibold title-sc w-full">Bienvenue sur mon portefolio</h2>
           <p className="text-xl md:text-2xl font-medium w-full">
-            Moi c'est Hugo, j'ai 24 ans et je suis développeur de site internet.<br />
+            Moi c'est Hugo, j'ai 25 ans et je suis développeur de site internet.<br />
             Créer des sites est devenu une passion et je me ferai un plaisir de créer le vôtre !
           </p>
         </div>
