@@ -153,9 +153,9 @@ function Home({ onTestWelcome }) {
           <AboutMe />
         </div>
       <div ref={section2} className="snap-start h-screen"><TypeCarousel /></div>
-      <div ref={section3} className="snap-start h-screen"><TypePresentation1 /></div>
-      <div ref={section4} className="snap-start h-screen"><TypePresentation2 /></div>
-      <div ref={section5} className="snap-start h-screen"><TypePresentation3 /></div>
+      <div ref={section3} className="snap-start min-h-screen"><TypePresentation1 /></div>
+      <div ref={section4} className="snap-start min-h-screen"><TypePresentation2 /></div>
+      <div ref={section5} className="snap-start min-h-screen"><TypePresentation3 /></div>
       <div ref={section6} className="snap-start h-screen"><Thanks onTestWelcome={onTestWelcome} /></div>
     </div>
   );

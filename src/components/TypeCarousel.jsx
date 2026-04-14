@@ -45,7 +45,6 @@ const TypeCarousel = () => {
   const initTimerRef = useRef(null);
   const orderTimerRef = useRef(null);
   const isDesktopRef = useRef(isDesktop);
-  const touchStartRef = useRef({ x: 0, y: 0 });
 
   const DESCRIPTION_ANIM_MS = 220;
   const DESKTOP_FAN_ANIM_MS = 1000;
@@ -320,37 +319,6 @@ const TypeCarousel = () => {
     }, 400);
   };
 
-  const handleMobileTouchStart = (e) => {
-    const t = e.touches?.[0];
-    if (!t) return;
-    touchStartRef.current = { x: t.clientX, y: t.clientY };
-  };
-
-  const handleMobileTouchMove = (e) => {
-    const t = e.touches?.[0];
-    if (!t) return;
-    const dx = t.clientX - touchStartRef.current.x;
-    const dy = t.clientY - touchStartRef.current.y;
-
-    // Si le geste est horizontal, on bloque le scroll vertical snap parent.
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
-  const handleMobileTouchEnd = (e) => {
-    const t = e.changedTouches?.[0];
-    if (!t) return;
-    const dx = t.clientX - touchStartRef.current.x;
-    const dy = t.clientY - touchStartRef.current.y;
-
-    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
-      if (dx < 0) swipeLeft();
-      else swipeRight();
-    }
-  };
-
   return (
     <section 
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
@@ -370,11 +338,8 @@ const TypeCarousel = () => {
           style={{
             height: 'min(54vh, 400px)',
             maxWidth: '100vw',
-            touchAction: 'pan-x',
+            touchAction: 'none',
           }}
-          onTouchStartCapture={handleMobileTouchStart}
-          onTouchMoveCapture={handleMobileTouchMove}
-          onTouchEndCapture={handleMobileTouchEnd}
         >
           {order.map((cardIndex) => {
             const card = cards[cardIndex];
